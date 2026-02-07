@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Important Question 😼</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', 'Poppins', cursive, sans-serif;
+      background: linear-gradient(135deg, #ffd6e8, #fff);
+      overflow: hidden;
+    }
+    .page {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.2rem;
+      margin: 10px 0 20px;
+    }
+    img {
+      width: 220px;
+      max-width: 80%;
+      margin: 20px 0;
+    }
+    .buttons {
+      position: relative;
+      width: 300px;
+      height: 150px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    #yesBtn {
+      background: #ff5fa2;
+      color: white;
+      margin-right: 20px;
+    }
+    #noBtn {
+      background: #ccc;
+      color: #333;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+    }
+    /* Success page */
+    #successPage {
+      display: none;
+      background: linear-gradient(135deg, #c3ffd9, #fff);
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <div class="page" id="questionPage">
+    <h1>Will you be my Girlfriend? 💖</h1>
+    <p id="funnyText">Be honest… but choose wisely 😼</p>
+    <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" alt="Cute cat begging" />
+
+    <div class="buttons">
+      <button id="yesBtn">Yes 💕</button>
+      <button id="noBtn">No 🙃</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page" id="successPage">
+    <h1>You made the right choice! 🎉</h1>
+    <p>DM me 😌💌</p>
+    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Celebrating cat" />
+    <canvas id="confetti"></canvas>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const funnyText = document.getElementById('funnyText');
+    const questionPage = document.getElementById('questionPage');
+    const successPage = document.getElementById('successPage');
+
+    const messages = [
+      "Think about it 🤔",
+      "Are you REALLY sure? 😼",
+      "Wrong button buddy 😭",
+      "My cat says no 🐱❌",
+      "Nice try 😏",
+      "You can't escape love 💘",
+      "Still the wrong answer 🙃"
+    ];
+
+    function moveNoButton() {
+      const container = document.querySelector('.buttons');
+      const yesRect = document.getElementById('yesBtn').getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      const maxX = container.clientWidth - noBtn.offsetWidth;
+      const maxY = container.clientHeight - noBtn.offsetHeight;
+
+      let x, y, tries = 0;
+      do {
+        x = Math.random() * maxX;
+        y = Math.random() * maxY;
+        const noRect = {
+          left: containerRect.left + x,
+          right: containerRect.left + x + noBtn.offsetWidth,
+          top: containerRect.top + y,
+          bottom: containerRect.top + y + noBtn.offsetHeight
+        };
+        tries++;
+        if (tries > 20) break;
+      } while (
+        !(noRect.right < yesRect.left ||
+          noRect.left > yesRect.right ||
+          noRect.bottom < yesRect.top ||
+          noRect.top > yesRect.bottom)
+      );
+
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+      noBtn.style.right = 'auto';
+      noBtn.style.bottom = 'auto';
+
+      funnyText.textContent = messages[Math.floor(Math.random() * messages.length)];
+    }
+
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('click', moveNoButton);
+
+    yesBtn.addEventListener('click', () => {
+      questionPage.style.display = 'none';
+      successPage.style.display = 'flex';
+      startConfetti();
+    });
+
+    // Simple confetti effect
+    function startConfetti() {
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const confetti = Array.from({ length: 150 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 150,
+        color: `hsl(${Math.random() * 360}, 100%, 70%)`
+      }));
+
+      let angle = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confetti.forEach(c => {
+          ctx.beginPath();
+          ctx.fillStyle = c.color;
+          ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        update();
+      }
+
+      function update() {
+        angle += 0.01;
+        confetti.forEach(c => {
+          c.y += Math.cos(angle + c.d) + 2;
+          c.x += Math.sin(angle);
+          if (c.y > canvas.height) {
+            c.y = -10;
+            c.x = Math.random() * canvas.width;
+          }
+        });
+      }
+
+      (function animate() {
+        draw();
+        requestAnimationFrame(animate);
+      })();
+    }
+  </script>
+</body>
+</html>
