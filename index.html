@@ -36,8 +36,12 @@
     }
     .buttons {
       position: relative;
-      width: 300px;
-      height: 150px;
+      width: 360px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
     }
     button {
       padding: 15px 30px;
@@ -59,8 +63,6 @@
       background: #ccc;
       color: #333;
       position: absolute;
-      right: 0;
-      bottom: 0;
     }
     /* Success page */
     #successPage {
@@ -85,7 +87,7 @@
 
     <div class="buttons">
       <button id="yesBtn">Yes 💕</button>
-      <button id="noBtn">No 🙃</button>
+      <button id="noBtn" style="position: relative;">No 🙃</button>
     </div>
   </div>
 
@@ -115,36 +117,37 @@
     ];
 
     function moveNoButton() {
-      const container = document.querySelector('.buttons');
-      const yesRect = document.getElementById('yesBtn').getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
+      const bodyRect = document.body.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
 
-      const maxX = container.clientWidth - noBtn.offsetWidth;
-      const maxY = container.clientHeight - noBtn.offsetHeight;
+      const maxX = window.innerWidth - noBtn.offsetWidth;
+      const maxY = window.innerHeight - noBtn.offsetHeight;
 
-      let x, y, tries = 0;
-      do {
+      let x, y;
+      let safe = false;
+
+      while (!safe) {
         x = Math.random() * maxX;
         y = Math.random() * maxY;
-        const noRect = {
-          left: containerRect.left + x,
-          right: containerRect.left + x + noBtn.offsetWidth,
-          top: containerRect.top + y,
-          bottom: containerRect.top + y + noBtn.offsetHeight
-        };
-        tries++;
-        if (tries > 20) break;
-      } while (
-        !(noRect.right < yesRect.left ||
-          noRect.left > yesRect.right ||
-          noRect.bottom < yesRect.top ||
-          noRect.top > yesRect.bottom)
-      );
 
+        const noRect = {
+          left: x,
+          right: x + noBtn.offsetWidth,
+          top: y,
+          bottom: y + noBtn.offsetHeight
+        };
+
+        safe = (
+          noRect.right < yesRect.left - 20 ||
+          noRect.left > yesRect.right + 20 ||
+          noRect.bottom < yesRect.top - 20 ||
+          noRect.top > yesRect.bottom + 20
+        );
+      }
+
+      noBtn.style.position = 'fixed';
       noBtn.style.left = x + 'px';
       noBtn.style.top = y + 'px';
-      noBtn.style.right = 'auto';
-      noBtn.style.bottom = 'auto';
 
       funnyText.textContent = messages[Math.floor(Math.random() * messages.length)];
     }
